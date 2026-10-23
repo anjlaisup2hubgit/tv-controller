@@ -8,4 +8,3 @@ Alternatively, ask an AI to host it for you and run "http://localhost:3000/" to 
 Make sure the device is on the same Wi-Fi as the TV, and copy paste the link in any browser on any device.
 
 Some buttons have no functionality, this is normal.
-
