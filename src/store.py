@@ -2,7 +2,7 @@
 import json
 from pathlib import Path
 
-FILE = Path(__file__).parent / "settings.json"
+FILE = Path(__file__).parent.parent / "data" / "settings.json"
 
 
 def _load():

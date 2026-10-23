@@ -8,8 +8,12 @@ import asyncio
 import re
 import urllib.parse
 import urllib.request
+from pathlib import Path
 
 import store
+
+ROOT = Path(__file__).parent.parent
+CERT, KEY = str(ROOT / "certs" / "cert.pem"), str(ROOT / "certs" / "key.pem")
 
 
 class Offline(Exception):
@@ -80,7 +84,7 @@ class AndroidTv(Driver):
     def __init__(self, ip, name=None):
         super().__init__(ip, name)
         from androidtvremote2 import AndroidTVRemote
-        self.remote = AndroidTVRemote("tv-controller", "cert.pem", "key.pem", ip)
+        self.remote = AndroidTVRemote("tv-controller", CERT, KEY, ip)
         self.typed = ""  # what we've put in the TV's focused text field
         self.field = None  # ime_field_counter that `typed` belongs to
 

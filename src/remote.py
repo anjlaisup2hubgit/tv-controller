@@ -1,8 +1,12 @@
 """Pair with a discovered Android TV and send a key press."""
 import asyncio
 import sys
+from pathlib import Path
 from androidtvremote2 import AndroidTVRemote, CannotConnect, InvalidAuth
 from discover import discover
+
+ROOT = Path(__file__).parent.parent
+CERT, KEY = str(ROOT / "certs" / "cert.pem"), str(ROOT / "certs" / "key.pem")
 
 
 async def main(key):
@@ -12,7 +16,7 @@ async def main(key):
     name, ip, _ = tvs[0]
     print(f"Using {name} at {ip}")
 
-    remote = AndroidTVRemote("tv-controller", "cert.pem", "key.pem", ip)
+    remote = AndroidTVRemote("tv-controller", CERT, KEY, ip)
     if await remote.async_generate_cert_if_missing():
         print("Made a new certificate.")
     try:

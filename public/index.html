@@ -63,13 +63,10 @@
   .p3 { display: flex; flex-direction: column; gap: 16px; }
   .p3 h2 { margin: 4px 0 0; font-size: 18px; text-align: center; }
   .p3 p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; text-align: center; }
-  .kbbox { width: 100%; padding: 14px; font-size: 16px; text-align: center; color: var(--text);
-    background: #0d1117; border: 1px solid var(--line); border-radius: 12px;
-    user-select: text; -webkit-user-select: text; }
+  .kbbox { width: 100%; height: 150px; padding: 14px; font: inherit; font-size: 18px; text-align: center;
+    color: var(--text); background: #0d1117; border: 1px solid var(--line); border-radius: 12px;
+    resize: none; user-select: text; -webkit-user-select: text; }
   .kbbox:focus { outline: 2px solid #3a63d8; }
-  .sent { min-height: 44px; padding: 10px 12px; border-radius: 10px; background: var(--btn);
-    color: var(--muted); font-size: 14px; word-break: break-all; user-select: text; -webkit-user-select: text; }
-  .kbopen { height: 56px; font-size: 16px; background: #3a63d8; }
   .kbkeys { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .kbkeys .btn { height: 46px; }
 
@@ -252,13 +249,9 @@
       </section>
 
       <section class="page p3">
-        <h2>Keyboard</h2>
-        <p>Open the keyboard, then type — each key goes straight to the TV's search or text box.</p>
-        <button class="btn kbopen" id="kbOpen">Open keyboard</button>
-        <input class="kbbox" id="kbBox" type="text" inputmode="text" enterkeyhint="send"
+        <textarea class="kbbox" id="kbBox" inputmode="text" enterkeyhint="send"
           autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"
-          placeholder="Tap here to type" aria-label="Type to TV">
-        <div class="sent" id="kbSent">Nothing sent yet.</div>
+          placeholder="Tap here to type" aria-label="Type to TV"></textarea>
         <div class="kbkeys">
           <button class="btn" data-key="DEL">DELETE</button>
           <button class="btn" data-key="ENTER">ENTER</button>
@@ -398,10 +391,8 @@ document.querySelector(".rocker .mid").style.pointerEvents = "auto";
 document.querySelector(".rocker .mid").addEventListener("pointerdown", () => press("MUTE"));
 
 // ---- keyboard page ----
-// iOS only raises its keyboard from a tap, so the button focuses the field inside its click handler.
-const kbBox = $("#kbBox"), kbSent = $("#kbSent");
-let typed = "";
-function noteSent(s) { typed = (typed + s).slice(-60); kbSent.textContent = typed || "Nothing sent yet."; }
+// Tapping the box raises the iOS keyboard; typed words stay visible in it while each key is sent to the TV.
+const kbBox = $("#kbBox");
 async function sendText(text) {
   try {
     const { ok, data } = await call("/api/text", { text });
@@ -411,21 +402,17 @@ async function sendText(text) {
     }
   } catch { toast("Can't reach the remote server"); }
 }
-$("#kbOpen").addEventListener("click", () => kbBox.focus());
 kbBox.addEventListener("input", (e) => {
-  const text = kbBox.value;
-  kbBox.value = "";  // the field only catches keystrokes; the TV holds the real text
-  if (e.isComposing || !text) return;
-  noteSent(text);
-  sendText(text);
+  if (e.isComposing) return;
+  if (e.inputType && e.inputType.startsWith("delete")) press("DEL");
+  else if (e.data) sendText(e.data);
 });
 kbBox.addEventListener("keydown", (e) => {
-  if (e.key === "Backspace" || e.key === "Enter") {
-    e.preventDefault();
-    if (e.key === "Backspace") { typed = typed.slice(0, -1); kbSent.textContent = typed || "Nothing sent yet."; }
-    press(e.key === "Backspace" ? "DEL" : "ENTER");
-  }
+  if (e.key === "Enter") { e.preventDefault(); press("ENTER"); kbBox.value = ""; }
 });
+// The on-screen DELETE / ENTER buttons keep the box in step with the TV.
+document.querySelector('.kbkeys [data-key="DEL"]').addEventListener("pointerdown", () => { kbBox.value = kbBox.value.slice(0, -1); });
+document.querySelector('.kbkeys [data-key="ENTER"]').addEventListener("pointerdown", () => { kbBox.value = ""; });
 
 // ---- pairing / settings dialog ----
 const dlg = $("#pairDlg"), code = $("#code");

@@ -1,4 +1,10 @@
-cert.pem
-key.pem
-__pycache__/
-settings.json
+certs/*
+!certs/.gitkeep
+data/*
+!data/.gitkeep
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+*.pyc

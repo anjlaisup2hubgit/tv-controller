@@ -14,7 +14,7 @@ from drivers import DRIVERS, Offline, Unsupported
 import store
 
 PORT = int(os.environ.get("PORT", 3000))
-WEB = Path(__file__).parent / "web"
+WEB = Path(__file__).parent.parent / "public"
 
 # Every button name the page can send; each driver maps these to its own protocol.
 ALL_KEYS = set().union(*(d.KEYS for d in DRIVERS.values()))
