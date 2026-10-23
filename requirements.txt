@@ -1,2 +1,4 @@
 zeroconf
 androidtvremote2
+samsungtvws[async]
+aiowebostv
